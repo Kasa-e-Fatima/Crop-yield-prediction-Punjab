@@ -8,7 +8,7 @@
 
 Machine-learning prototype for predicting wheat and maize yield in Punjab, Pakistan (Random Forest, XGBoost, SVR and a stacked ensemble, with a MobileNetV2 leaf-health classifier and SHAP explanations), **together with an honest audit of how well such models really forecast**.
 
-> **Please read this first.** The scores reported for the original project (for example R² = 0.99 in [`Version_1`](Version_1/)) come from a random split of a table that turned out to contain only **46 independent observations**, because every crop-year was copied nine times by a data join. They overstate real forecasting skill. The corrected evaluation, the replications and the preprint are in [`Extended Version`](Extended%20Version/).
+> **Please read this first.** The scores reported for the original project (for example R² = 0.99 in [`Version-1`](Version-1/)) come from a random split of a table that turned out to contain only **46 independent observations**, because every crop-year was copied nine times by a data join. They overstate real forecasting skill. The corrected evaluation, the replications and the preprint materials are in [`Extended Version`](Extended%20Version/).
 
 ---
 
@@ -17,7 +17,7 @@ Machine-learning prototype for predicting wheat and maize yield in Punjab, Pakis
 1. [Repository layout](#repository-layout)
 2. [What the project does](#what-the-project-does)
 3. [Main findings of the extended evaluation](#main-findings-of-the-extended-evaluation)
-4. [Version_1: the original project](#version_1-the-original-project)
+4. [Version-1: the original project](#version-1-the-original-project)
 5. [Extended Version: audit, replication and preprint](#extended-version-audit-replication-and-preprint)
 6. [Data sources and licences](#data-sources-and-licences)
 7. [Limitations](#limitations)
@@ -31,19 +31,19 @@ Machine-learning prototype for predicting wheat and maize yield in Punjab, Pakis
 ## Repository layout
 
 ```
-Crop_Yield_Prediction-_Punjab/
+Crop-yield-prediction-Punjab/
 ├── README.md             this file
 ├── LICENSE               MIT licence (code)
-├── Version_1/            the original project: data, notebook, Gradio app, trained models, figures, course report
-└── Extended Version/     everything added afterwards: audit, replications, scripts, results, figures, notebook, preprint files
+├── Version-1/            the original project: dataset, notebook, Gradio app, trained models, figures, course report
+└── Extended Version/     everything added afterwards: audit, replications, scripts, result tables, figures, Colab notebook, bibliography
 ```
 
-Both folders are flat: files are grouped by type rather than in sub-folders.
+Both folders are flat: files are grouped by type, not in sub-folders. (`git.keep` and `data.txt` in each folder are empty placeholder files.)
 
 | Folder | Main contents |
 |--------|---------------|
-| [`Version_1`](Version_1/) | `app_cv.py` (Gradio app), `Crop_yield_Prediction_with_CV_module.ipynb` (full original notebook), `CropYield_Report_with_CV_Module.docx` (course report), `final_ml_dataset_cv.csv` and a `data/` folder, result figures (`*.png`: model comparison, ablation, SHAP, confusion matrix, architecture, ...), trained models |
-| [`Extended Version`](Extended%20Version/) | analysis scripts (`experiments.py`, `extra.py`, `detrend.py`, `detrend2.py`, `district.py`, ...), result tables (`*.csv`), paper figures (`*.pdf`, `*.png`), the Colab notebook `crop_yield_extension_colab.ipynb`, LaTeX figure files (`*.tex`), the deduplicated table `crop_year_dataset.csv`, and a `data/` folder |
+| [`Version-1`](Version-1/) | `app_cv.py` (Gradio app), `requirements.txt`, `Crop_yield_Prediction_with_CV_module.ipynb` (full original notebook), `CropYield_Report_with_CV_Module (1).docx` (course report), `final_ml_dataset_cv.csv` (merged 414-row dataset), trained models (`rf_cv.pkl`, `xgb_cv.pkl`, `svr_cv.pkl`, `stack_cv.pkl`, `scaler_cv.pkl`, `leaf_classifier.h5`), result figures (`*.png`) |
+| [`Extended Version`](Extended%20Version/) | analysis scripts (`experiments.py`, `extra.py`, `detrend.py`, `detrend2.py`, `district.py`), result tables (`*.csv`), the deduplicated table `crop_year_dataset.csv`, the Colab notebook `crop_yield_extension_colab.ipynb`, paper figures (`*.pdf`, `*.png`), the LaTeX figure file `cvarch.tex`, and the bibliography `references.bib` |
 
 **Live demo:** [Hugging Face Space](https://huggingface.co/spaces/AminahAsif/Crop-yield-punjab)
 
@@ -53,8 +53,8 @@ Both folders are flat: files are grouped by type rather than in sub-folders.
 
 - **Tabular yield models.** Random Forest, XGBoost and support-vector regression predict yield (Ton/Ha) for wheat and maize from pesticide use, temperature and soil variables. A Ridge meta-learner stacks the three.
 - **Leaf-health module.** A MobileNetV2 classifier (ImageNet weights, frozen backbone, small dense head) labels a maize-leaf photograph as healthy or diseased. Its probability is passed to the yield models as a `health_score` feature.
-- **Explanations and app.** SHAP waterfall plots explain the XGBoost prediction, and a Gradio web app puts everything behind sliders and an optional image upload.
-- **Audit and replication (Extended Version).** The same question is re-asked with validation that respects time (leave-one-year-out, forward chaining), on a longer FAOSTAT table, on a district-level wheat panel, and with an unseen-image test of the classifier.
+- **Explanations and app.** SHAP plots explain the XGBoost prediction, and a Gradio web app puts everything behind sliders and an optional image upload.
+- **Audit and replication (Extended Version).** The same question is asked again with validation that respects time (leave-one-year-out, forward chaining), on a longer FAOSTAT table, on a district-level wheat panel, and with an unseen-image test of the classifier.
 
 ---
 
@@ -75,7 +75,7 @@ Both folders are flat: files are grouped by type rather than in sub-folders.
 
 ---
 
-## Version_1: the original project
+## Version-1: the original project
 
 ### Data
 
@@ -104,18 +104,32 @@ All seeds are fixed at 42. The baseline tabular models were also cross-checked i
 
 Leaf classifier: 99.87% accuracy on 772 held-out PlantVillage images (771 correct).
 
+### Figures
+
+| File | Shows |
+|------|-------|
+| `arch.png`, `cvarch.png` | system architecture and the leaf-classifier architecture |
+| `split.png`, `correlation_heatmap.png` | train/test split and feature correlations |
+| `model_comparison_cv.png` | comparison of the four yield models |
+| `ablation.png`, `hs.png` | feature ablation and the effect of `health_score` |
+| `perm.png`, `shap_cv_bar.png` | permutation importance and SHAP importance |
+| `training_curves.png`, `confusion_matrix.png` | leaf-classifier training curves and confusion matrix |
+| `app_cv.png` | screenshot of the Gradio app |
+
 ### The web app
 
-`app_cv.py` is a Gradio app: sliders for pesticide use (0-30,000 t), temperature (15-35 C), N, P, K, soil temperature, humidity and pH, an optional leaf-image upload, and as output the four model predictions, a comparison chart, the leaf label and a SHAP waterfall plot. Run it from inside `Version_1/`:
+`app_cv.py` is a Gradio app: sliders for pesticide use (0-30,000 t), temperature (15-35 °C), N, P, K, soil temperature, humidity and pH, an optional leaf-image upload, and as output the four model predictions, a comparison chart, the leaf label and a SHAP plot. Run it from inside `Version-1/`:
 
 ```bash
-git clone https://github.com/AminahAsif/Crop_Yield_Prediction-_Punjab.git
-cd Crop_Yield_Prediction-_Punjab/Version_1
-pip install gradio numpy pandas scikit-learn xgboost shap matplotlib joblib tensorflow Pillow
+git clone https://github.com/Kasa-e-Fatima/Crop-yield-prediction-Punjab.git
+cd Crop-yield-prediction-Punjab/Version-1
+pip install -r requirements.txt
 python app_cv.py
 ```
 
-The app loads the trained models (`*_cv.pkl` and `leaf_classifier.h5`) from the location set at the top of `app_cv.py`; check that path matches where you keep the files. Note that the confidence shown for a *diseased* leaf should be the probability of the diseased class (1 - P(healthy)); the first release showed P(healthy) for every leaf, and the Hugging Face Space may still run that earlier file.
+The app loads the trained models (`rf_cv.pkl`, `xgb_cv.pkl`, `svr_cv.pkl`, `stack_cv.pkl`, `scaler_cv.pkl` and `leaf_classifier.h5`) from the same folder as `app_cv.py`, so no path needs changing.
+
+**Known issue:** for a leaf labelled *diseased*, the confidence the app shows is P(healthy), not P(diseased). The correct value is 1 - P(healthy). The label itself is correct.
 
 ---
 
@@ -125,24 +139,30 @@ The app loads the trained models (`*_cv.pkl` and `leaf_classifier.h5`) from the 
 
 | Files | What they are |
 |-------|---------------|
-| `experiments.py`, `extra.py` | the three validation protocols on the deduplicated 46-row table; the 414-row random-vs-leave-one-year-out check |
+| `experiments.py` | the three validation protocols (`Random`, `LOYO` = leave-one-year-out, `Forward` = forward chaining) on the deduplicated 46-row table; builds `crop_year_dataset.csv` |
+| `extra.py` | the 414-row random-vs-leave-one-year-out check |
 | `detrend.py`, `detrend2.py` | trend + residual models and the feature ablation |
 | `district.py` | district-level wheat panel analysis |
-| `make_figs.py`, `make_svg.py`, `tables.py` | figures and LaTeX tables for the paper |
 | `crop_year_dataset.csv` | the deduplicated 46-row crop-year table |
 | `protocol_results.csv`, `extra414.csv`, `detrend_results.csv`, `detrend_ablation.csv`, `district_results.csv` | raw result tables behind the paper |
 | `crop_yield_extension_colab.ipynb` | Colab notebook: downloads FAOSTAT, rebuilds the 1990-2024 table, re-runs the evaluation, and runs the unseen-image test with near-duplicate removal |
-| `*.pdf`, `*.png`, `*.tex` (figures) | the figures of the preprint and the small LaTeX files that include them |
-| `data/` | data used by the Extended Version scripts |
+| `pipeline.pdf`, `prototype_overview.pdf`, `cv_architecture.pdf`, `data_audit.pdf`, `protocols.pdf`, `results_protocols.pdf`, `forward_predictions.pdf`, `permutation.pdf`, `district_panel.pdf`, `fao_series.png`, `training_curves.png`, `confusion_matrix.png` | figures of the preprint |
+| `cvarch.tex` | LaTeX file for the classifier-architecture figure |
+| `references.bib` | bibliography of the preprint |
 
-The scripts were written with absolute paths from the authoring machine; edit the paths at the top of each script before re-running. Seeds are fixed at 42.
+Seeds are fixed at 42.
 
 ### How to reproduce
 
-1. **Experiments on the Kaggle-derived table.** Run `experiments.py`, `extra.py`, `detrend.py` and `detrend2.py` after pointing their paths to `crop_year_dataset.csv` and to `Version_1/final_ml_dataset_cv.csv`.
-2. **FAOSTAT replication and unseen-image test.** Open `crop_yield_extension_colab.ipynb` in Google Colab. Put `leaf_classifier.h5` (from `Version_1`) and, for the PlantVillage download, your `kaggle.json` in a Drive folder called `crop_yield_project`, then run the cells top to bottom. Part 4 (healthy leaves from other public datasets) is optional and was **not** used in the paper; its automatic download may be blocked by the data host.
-3. **District-level wheat panel.** `district.py` expects the raw file `punjab_wheat_district_yield_raw.csv`. It is **not** redistributed here because the portal lists no licence: download *Area sown, production and yield per hectare of wheat by districts, Punjab* from [Open Data Pakistan](https://opendata.com.pk) (Pakistan Bureau of Statistics) and save it under that name.
-4. **The paper.** The LaTeX source compiles with pdfLaTeX and BibTeX (main file `main.tex`, bibliography `references.bib`; the `.tex` figure files expect the figures in a `figures/` folder and the tables in a `tables/` folder).
+Run the scripts from inside the `Extended Version/` folder.
+
+1. **Experiments on the Kaggle-derived table.**
+   - `experiments.py` and `extra.py` contain absolute paths from the authoring machine (`/home/claude/w/...`). Before running, change them: point the input to `../Version-1/final_ml_dataset_cv.csv` and the outputs to the current folder.
+   - Run `python experiments.py Random LOYO Forward` (the protocols are given as command-line arguments). This also writes `crop_year_dataset.csv`.
+   - Then run `python extra.py`, `python detrend.py` and `python detrend2.py`. These read `crop_year_dataset.csv` from the current folder.
+2. **FAOSTAT replication and unseen-image test.** Open `crop_yield_extension_colab.ipynb` in Google Colab. Put `leaf_classifier.h5` (from `Version-1`) and, for the PlantVillage download, your `kaggle.json` in a Drive folder called `crop_yield_project`, then run the cells top to bottom. Part 4 (healthy leaves from other public datasets) is optional and was **not** used in the paper; its automatic download may be blocked by the data host.
+3. **District-level wheat panel.** `district.py` expects the raw file at `../data/punjab_wheat_district_yield_raw.csv` (a `data/` folder at the top of the repository). It is **not** included here because the portal lists no licence: download *Area sown, production and yield per hectare of wheat by districts, Punjab* from [Open Data Pakistan](https://opendata.com.pk) (Pakistan Bureau of Statistics), create the `data/` folder and save the file there under that name.
+4. **The paper.** The bibliography (`references.bib`) and the figures are included. The main LaTeX source of the preprint is not in this repository.
 
 ---
 
@@ -168,7 +188,7 @@ Small samples (46 and 70 national observations, 464 district-season observations
 - **Qurat ul Ain Asif**, Key Laboratory of Xinjiang Endemic Phytomedicine Resources, Ministry of Education; School of Pharmacy, Shihezi University, Shihezi 832002, China
 - **Noor Bakhat Asif**, Department of Physics, Government College Women University Faisalabad, Faisalabad, Pakistan
 
-**Original course project (`Version_1`).** Done in the Data Mining course, Department of Artificial Intelligence, The Islamia University of Bahawalpur (session 2023 to 2027), by Amina Asif and Kasa e Fatima under the supervision of Miss Maryam Aslam.
+**Original course project (`Version-1`).** Done in the Data Mining course, Department of Artificial Intelligence, The Islamia University of Bahawalpur (session 2023 to 2027), by Amina Asif and Kasa e Fatima under the supervision of Miss Maryam Aslam.
 
 ---
 
@@ -185,7 +205,7 @@ If you use this work, please cite the preprint:
   year   = {2026},
   note   = {Preprint},
   doi    = {to be added},
-  url    = {https://github.com/AminahAsif/Crop_Yield_Prediction-_Punjab}
+  url    = {https://github.com/Kasa-e-Fatima/Crop-yield-prediction-Punjab}
 }
 ```
 
